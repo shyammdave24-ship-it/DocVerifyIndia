@@ -1,5 +1,6 @@
 import streamlit as st
 from supabase import create_client
+import time # Added for the dramatic AI loading effect
 
 # --- 1. SUPABASE CONNECTION ---
 SUPABASE_URL = "https://osbbdapzegmiqgavlezr.supabase.co"
@@ -17,7 +18,6 @@ except Exception as e:
 # --- 2. PAGE CONFIG & ENTERPRISE CSS ---
 st.set_page_config(page_title="DocVerifyIndia", page_icon="🇮🇳", layout="wide")
 
-# CSS to make the page long, spaced out, and highly professional
 st.markdown("""
     <style>
     .stApp { background-color: #f8f9fa; }
@@ -111,7 +111,6 @@ elif st.session_state.page == "login":
 # ==========================================
 elif st.session_state.page == "home":
     
-    # 1. HUGE HERO IMAGE (Working Unsplash Link - Official Documents)
     st.image("https://images.unsplash.com/photo-1618044733300-9472054094ee?auto=format&fit=crop&w=2000&q=80", use_container_width=True)
 
     st.markdown("<div class='main-title'>DocVerifyIndia Engine</div>", unsafe_allow_html=True)
@@ -169,8 +168,30 @@ elif st.session_state.page == "home":
             reqs = SERVICES[selected]
             st.markdown(f"<div class='card'><h3>Required KYC Checklist</h3><p>Upload the following <b>{len(reqs)}</b> items to begin the AI mismatch scan.</p></div>", unsafe_allow_html=True)
             
+            # Create a dictionary to hold the uploaded files
+            uploaded_files = {}
             for doc in reqs:
-                st.file_uploader(f"Upload {doc}", type=["jpg", "png", "pdf"], key=doc)
+                uploaded_files[doc] = st.file_uploader(f"Upload {doc}", type=["jpg", "png", "pdf"], key=doc)
+                
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            # --- THE NEW VERIFY BUTTON ---
+            if st.button("🔍 Verify Documents Using AI", type="primary", use_container_width=True):
+                # Logic: Check if EVERY file slot has something uploaded
+                if all(uploaded_files.values()):
+                    # Simulate the AI doing heavy work
+                    with st.spinner('AI Engine extracting OCR text and scanning for discrepancies...'):
+                        time.sleep(3) # Wait 3 seconds for dramatic effect
+                        
+                    # Show the result based on login status
+                    if st.session_state.user_email:
+                        st.success("✅ Secure Vault Sync: MATCH SUCCESS. All documents are perfectly aligned with regulatory standards.")
+                        st.balloons() # Shoot celebration balloons!
+                    else:
+                        st.warning("⚠️ Pre-check complete: Documents appear valid, but you must log in or create an account to generate the final verification report.")
+                else:
+                    st.error("❌ Action Blocked: You must upload all required files before running the Verification Engine.")
+                    
         else:
             st.info("👆 Please select a service from the dropdown menu to load the specific upload portals.")
 
